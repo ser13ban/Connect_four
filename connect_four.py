@@ -40,6 +40,7 @@ def get_player2_column(board, player2):
         # he will go in full defemnce mode and also will chosee the best poition to play based on the score (the biggest array of tiles till in order to get 4 (chooses randomly one of the options if there are more of them))
         board_copy = board.copy()
         threes_in_row = []
+        twos_in_row = []
         for c in range(cns.COLUMNS):
             row = find_row_for_column(board, c)
             board_copy[row][c] = 2
@@ -47,14 +48,20 @@ def get_player2_column(board, player2):
                 return c
             if check_game_over_for_n(board_copy, 2, 3):
                 threes_in_row.append(c)
+            if check_game_over_for_n(board_copy, 2, 2):
+                twos_in_row.append(c)
             board_copy[row][c] = 1
             if check_game_over_for_n(board_copy, 1, 4):
                 return c
+
             # if there was no return so far we need to check if we have 3 in a row
             board_copy[row][c] = 0
 
         if threes_in_row:
             return random.choice(threes_in_row)
+
+        if twos_in_row:
+            return random.choice(twos_in_row)
 
         return random.randint(0, cns.COLUMNS-1)
 
