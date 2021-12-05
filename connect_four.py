@@ -29,8 +29,12 @@ def get_player2_column(board, player2):
         # this is the ai in medium mode ( he knows how to do defence, he attacks randmonly)
         board_copy = board.copy()
         for c in range(cns.COLUMNS):
-            row = find_row_for_column(c)
-
+            row = find_row_for_column(board, c)
+            board_copy[row][c] = 1
+            if check_game_over(board_copy, row, c, 1):
+                return c
+        col = random.randint(0, cns.COLUMNS-1)
+        return col
     elif player2 is cns.AI_HARD:
         # this is the ai in the hard mode
         # he will go in full defemnce mode and also will chosee the best poition to play based on the score (the biggest array of tiles till in order to get 4 (chooses randomly one of the options if there are more of them))
@@ -143,4 +147,4 @@ def game(player2):
         print_board(board)
 
 
-game(cns.AI_EASY)
+game(cns.AI_MEDIUM)
