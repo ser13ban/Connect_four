@@ -31,14 +31,32 @@ def get_player2_column(board, player2):
         for c in range(cns.COLUMNS):
             row = find_row_for_column(board, c)
             board_copy[row][c] = 1
-            if check_game_over(board_copy, row, c, 1):
+            if check_game_over_for_n(board_copy, 1, 4):
                 return c
         col = random.randint(0, cns.COLUMNS-1)
         return col
     elif player2 is cns.AI_HARD:
         # this is the ai in the hard mode
         # he will go in full defemnce mode and also will chosee the best poition to play based on the score (the biggest array of tiles till in order to get 4 (chooses randomly one of the options if there are more of them))
-        pass
+        board_copy = board.copy()
+        threes_in_row = []
+        for c in range(cns.COLUMNS):
+            row = find_row_for_column(board, c)
+            board_copy[row][c] = 2
+            if check_game_over_for_n(board_copy, 2, 4):
+                return c
+            if check_game_over_for_n(board_copy, 2, 3):
+                threes_in_row.append(c)
+            board_copy[row][c] = 1
+            if check_game_over_for_n(board_copy, 1, 4):
+                return c
+            # if there was no return so far we need to check if we have 3 in a row
+            board_copy[row][c] = 0
+
+        if threes_in_row:
+            return random.choice(threes_in_row)
+
+        return random.randint(0, cns.COLUMNS-1)
 
 
 def is_valid_position(board, col):
@@ -55,44 +73,41 @@ def find_row_for_column(board, col):
             return row
 
 
-def check_game_over(board, row, col, piece):
-    # check horizontaly
-    depth_row = cns.ROWS - 3
-    depth_col = cns.COLUMNS - 3
-    for top in range(row, -1, -1):
-        row_top = row - top
-        row_bottom = row_top + 3
-        if row_top < depth_row:
+def check_game_over_for_n(board, piece, n):
+    for c in range(cns.COLUMNS-(n-1)):
+        for r in range(cns.ROWS):
             count = 0
-            for r in range(row_top, row_bottom+1):
-                if board[r][col] == piece:
+            for i in range(0, n):
+                if board[r][c+i] == piece:
                     count += 1
-            if count == 4:
+            if count == n:
+                return True
+    for c in range(cns.COLUMNS):
+        for r in range(cns.ROWS-(n-1)):
+            count = 0
+            for i in range(0, n):
+                if board[r+i][c] == piece:
+                    count += 1
+            if count == n:
                 return True
 
-    # check vertically
-    for top in range(col, -1, -1):
-        col_top = col - top
-        col_bottom = col_top + 3
-        if col_bottom <= depth_col:
+    for c in range(cns.COLUMNS - n - 1):
+        for r in range(cns.ROWS-n-1):
             count = 0
-            for c in range(col_top, col_bottom+1):
-                if board[row][c] == piece:
+            for i in range(0, n):
+                if board[r+i][c+i] == piece:
                     count += 1
-            if count == 4:
+            if count == n:
                 return True
 
-    # check diagionals
-        for c in range(cns.COLUMNS-3):
-            for r in range(cns.ROWS-3):
-                if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
-                    return True
-
-        for c in range(cns.COLUMNS-3):
-            for r in range(3, cns.ROWS):
-                if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
-                    return True
-
+    for c in range(cns.COLUMNS-n-1):
+        for r in range(n-1, cns.ROWS):
+            count = 0
+            for i in range(0, n):
+                if board[r-i][c+i] == piece:
+                    count += 1
+            if count == n:
+                return True
     return False
 
 
@@ -114,7 +129,7 @@ def game(player2):
                 placed_piece = True
 
             # check to see if this player won
-            if check_game_over(board, row, col, 1):
+            if check_game_over_for_n(board, 1, 4):
                 print("Player 1 won")
                 game_over = True
                 break
@@ -136,7 +151,7 @@ def game(player2):
                 placed_piece = True
 
             # check to see if this player won
-            if check_game_over(board, row, col, 2):
+            if check_game_over_for_n(board, 2, 4):
                 print("Player 2 won")
                 game_over = True
                 break
@@ -147,4 +162,4 @@ def game(player2):
         print_board(board)
 
 
-game(cns.AI_MEDIUM)
+game(cns.AI_HARD)
