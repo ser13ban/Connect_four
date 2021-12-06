@@ -1,5 +1,8 @@
 import numpy as np
 import random
+import pygame
+import sys
+import math
 import constants as cns
 
 
@@ -17,9 +20,21 @@ def get_human_player_move():
     return col
 
 
-def get_player2_column(board, player2):
+def get_human_player_move_from_interface(event):
+    posx = event.pos[0]
+    col = int(math.floor(posx / cns.TILE_SIZE))
+    return col
+
+
+def get_human_player2_move_from_interface(event):
+    posx = event.pos[0]
+    col = int(math.floor(posx / cns.TILE_SIZE))
+    return col
+
+
+def get_player2_column(board, player2, event):
     if player2 is cns.PLAYER_TWO:
-        col = get_human_player_move()
+        col = get_human_player2_move_from_interface(event)
         return col
     elif player2 is cns.AI_EASY:
         # this the ai in random mode (he chooses a piece at random)
@@ -118,55 +133,116 @@ def check_game_over_for_n(board, piece, n):
     return False
 
 
+def draw_interface(board, screen):
+    for c in range(cns.COLUMNS):
+        for r in range(cns.ROWS):
+            pygame.draw.rect(screen, cns.BLUE, (c * cns.TILE_SIZE,
+                             r * cns.TILE_SIZE + cns.TILE_SIZE, cns.TILE_SIZE, cns.TILE_SIZE))
+            if board[r][c] == 0:
+                pygame.draw.circle(screen, cns.BLACK, (int(c * cns.TILE_SIZE + cns.TILE_SIZE/2),
+                                                       int(r * cns.TILE_SIZE + cns.TILE_SIZE + cns.TILE_SIZE/2)), cns.RADIUS)
+            if board[r][c] == 1:
+                pygame.draw.circle(screen, cns.RED, (int(c * cns.TILE_SIZE + cns.TILE_SIZE/2),
+                                                     int(r * cns.TILE_SIZE + cns.TILE_SIZE + cns.TILE_SIZE/2)), cns.RADIUS)
+            if board[r][c] == 2:
+                pygame.draw.circle(screen, cns.GREEN, (int(c * cns.TILE_SIZE + cns.TILE_SIZE/2),
+                                                       int(r * cns.TILE_SIZE + cns.TILE_SIZE + cns.TILE_SIZE/2)), cns.RADIUS)
+    pygame.display.update()
+
+
 def game(player2):
     board = generate_board()
     game_over = False
     turn = 1
+
+    pygame.init()
+    screen_width = cns.COLUMNS * cns.TILE_SIZE
+    screen_height = (cns.ROWS+1) * cns.TILE_SIZE
+    size = (screen_width, screen_height)
+
+    screen = pygame.display.set_mode(size)
+    draw_interface(board, screen)
+    winner_font = pygame.font.SysFont("monospace", 75)
+
     while not game_over:
-        # player 1
-        if turn == 1:
-            placed_piece = False
-            print("PLayer 1:")
-            col = get_human_player_move()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
 
-            # make move
-            row = find_row_for_column(board, col)
-            if is_valid_position(board, col):
-                place_piece(board, row, col, 1)
-                placed_piece = True
+            if event.type == pygame.MOUSEMOTION:
+                pygame.draw.rect(screen, cns.BLACK,
+                                 (0, 0, screen_width, cns.TILE_SIZE))
+                posx = event.pos[0]
+                if turn == 1:
+                    pygame.draw.circle(
+                        screen, cns.RED, (posx, int(cns.TILE_SIZE/2)), cns.RADIUS)
+                else:
+                    pygame.draw.circle(
+                        screen, cns.GREEN, (posx, int(cns.TILE_SIZE/2)), cns.RADIUS)
+                pygame.display.update()
 
-            # check to see if this player won
-            if check_game_over_for_n(board, 1, 4):
-                print("Player 1 won")
-                game_over = True
-                break
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pygame.draw.rect(screen, cns.BLACK,
+                                 (0, 0, screen_width, cns.TILE_SIZE))
+                # player 1
+                if turn == 1:
+                    placed_piece = False
+                    print("PLayer 1:")
+                    col = get_human_player_move_from_interface(event)
+                    print("COL ROM PLYER 1: ", col)
 
-            if placed_piece:
-                turn = 2
+                    # make move
+                    row = find_row_for_column(board, col)
+                    if is_valid_position(board, col):
+                        place_piece(board, row, col, 1)
+                        placed_piece = True
 
-        # player 2
-        if turn == 2:
-            placed_piece = False
-            if player2 is cns.PLAYER_TWO:
-                print("PLayer 2:")
-            col = get_player2_column(board, player2)
+                    # check to see if this player won
+                    if check_game_over_for_n(board, 1, 4):
+                        print("Player 1 won")
+                        label = winner_font.render(
+                            "PLAYER ONE WON!", 1, cns.RED)
+                        screen.blit(label, (40, 10))
+                        draw_interface(board, screen)
+                        draw_interface(board, screen)
+                        pygame.time.wait(3000)
+                        game_over = True
+                        break
 
-            # make move
-            row = find_row_for_column(board, col)
-            if is_valid_position(board, col):
-                place_piece(board, row, col, 2)
-                placed_piece = True
+                    if placed_piece:
+                        turn = 2
+                        draw_interface(board, screen)
+                        continue
 
-            # check to see if this player won
-            if check_game_over_for_n(board, 2, 4):
-                print("Player 2 won")
-                game_over = True
-                break
+                # player 2
+                if turn == 2:
+                    placed_piece = False
+                    if player2 is cns.PLAYER_TWO:
+                        print("PLayer 2:")
+                    col = get_player2_column(board, player2, event)
+                    print("COL fROM player TWO: ", col)
+                    # make move
+                    row = find_row_for_column(board, col)
+                    if is_valid_position(board, col):
+                        place_piece(board, row, col, 2)
+                        placed_piece = True
 
-            if placed_piece:
-                turn = 1
+                    # check to see if this player won
+                    if check_game_over_for_n(board, 2, 4):
+                        print("Player 2 won")
+                        label = winner_font.render(
+                            "PLAYER TWO WON!", 1, cns.GREEN)
+                        screen.blit(label, (40, 10))
+                        draw_interface(board, screen)
+                        pygame.time.wait(3000)
+                        game_over = True
+                        break
 
-        print_board(board)
+                    if placed_piece:
+                        turn = 1
+
+                print_board(board)
+                draw_interface(board, screen)
 
 
-game(cns.AI_HARD)
+game(cns.PLAYER_TWO)
