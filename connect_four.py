@@ -45,9 +45,10 @@ def get_player2_column(board, player2, event):
         board_copy = board.copy()
         for c in range(cns.COLUMNS):
             row = find_row_for_column(board, c)
-            board_copy[row][c] = 1
-            if check_game_over_for_n(board_copy, 1, 4):
-                return c
+            if row:
+                board_copy[row][c] = 1
+                if check_game_over_for_n(board_copy, 1, 4):
+                    return c
         col = random.randint(0, cns.COLUMNS-1)
         return col
     elif player2 is cns.AI_HARD:
@@ -58,19 +59,20 @@ def get_player2_column(board, player2, event):
         twos_in_row = []
         for c in range(cns.COLUMNS):
             row = find_row_for_column(board, c)
-            board_copy[row][c] = 2
-            if check_game_over_for_n(board_copy, 2, 4):
-                return c
-            if check_game_over_for_n(board_copy, 2, 3):
-                threes_in_row.append(c)
-            if check_game_over_for_n(board_copy, 2, 2):
-                twos_in_row.append(c)
-            board_copy[row][c] = 1
-            if check_game_over_for_n(board_copy, 1, 4):
-                return c
+            if row:
+                board_copy[row][c] = 2
+                if check_game_over_for_n(board_copy, 2, 4):
+                    return c
+                if check_game_over_for_n(board_copy, 2, 3):
+                    threes_in_row.append(c)
+                if check_game_over_for_n(board_copy, 2, 2):
+                    twos_in_row.append(c)
+                board_copy[row][c] = 1
+                if check_game_over_for_n(board_copy, 1, 4):
+                    return c
 
-            # if there was no return so far we need to check if we have 3 in a row
-            board_copy[row][c] = 0
+                # if there was no return so far we need to check if we have 3 in a row
+                board_copy[row][c] = 0
 
         if threes_in_row:
             return random.choice(threes_in_row)
@@ -113,7 +115,7 @@ def check_game_over_for_n(board, piece, n):
             if count == n:
                 return True
 
-    for c in range(cns.COLUMNS - n - 1):
+    for c in range(cns.COLUMNS - n):
         for r in range(cns.ROWS-n-1):
             count = 0
             for i in range(0, n):
@@ -122,7 +124,7 @@ def check_game_over_for_n(board, piece, n):
             if count == n:
                 return True
 
-    for c in range(cns.COLUMNS-n-1):
+    for c in range(cns.COLUMNS-n):
         for r in range(n-1, cns.ROWS):
             count = 0
             for i in range(0, n):
@@ -150,10 +152,10 @@ def draw_interface(board, screen):
     pygame.display.update()
 
 
-def game(player2):
+def game(player2, first_player):
     board = generate_board()
     game_over = False
-    turn = 1
+    turn = first_player
 
     pygame.init()
     screen_width = cns.COLUMNS * cns.TILE_SIZE
@@ -173,10 +175,11 @@ def game(player2):
                 pygame.draw.rect(screen, cns.BLACK,
                                  (0, 0, screen_width, cns.TILE_SIZE))
                 posx = event.pos[0]
+
                 if turn == 1:
                     pygame.draw.circle(
                         screen, cns.RED, (posx, int(cns.TILE_SIZE/2)), cns.RADIUS)
-                else:
+                elif turn == 2 and player2 == cns.PLAYER_TWO:
                     pygame.draw.circle(
                         screen, cns.GREEN, (posx, int(cns.TILE_SIZE/2)), cns.RADIUS)
                 pygame.display.update()
@@ -193,7 +196,7 @@ def game(player2):
 
                     # make move
                     row = find_row_for_column(board, col)
-                    if is_valid_position(board, col):
+                    if is_valid_position(board, col) and row >= 0:
                         place_piece(board, row, col, 1)
                         placed_piece = True
 
@@ -212,7 +215,8 @@ def game(player2):
                     if placed_piece:
                         turn = 2
                         draw_interface(board, screen)
-                        continue
+                        if(player2 == cns.PLAYER_TWO):
+                            continue
 
                 # player 2
                 if turn == 2:
@@ -245,4 +249,58 @@ def game(player2):
                 draw_interface(board, screen)
 
 
-game(cns.PLAYER_TWO)
+# game(cns.AI_HARD)
+
+def get_args():
+    if len(sys.argv) != 5:
+        print("ERR, wrong number of arguments, try to follow: ")
+        print("python connect_four.py <tip adversar> <celule_axa_x> <celule_axa_y> <First Player>")
+        return
+
+    player2 = sys.argv[1]
+    if player2 == "human":
+        player2 = cns.PLAYER_TWO
+    elif player2 == "computer_easy":
+        player2 = cns.AI_EASY
+    elif player2 == "computer_medium":
+        player2 = cns.AI_MEDIUM
+    elif player2 == "computer_hard":
+        player2 = cns.AI_HARD
+    else:
+        print("The oponent can be one of the followings")
+        print("human \tcomputer_easy \tcomputer_medium \tcomputer_hard")
+        return
+
+    try:
+        cns.COLUMNS = int(sys.argv[2])
+    except:
+        print("ERR, the number of collums must be an integer")
+        return
+
+    if(cns.COLUMNS < 4):
+        print("The number of collums must be at leat four")
+        return
+
+    try:
+        cns.ROWS = int(sys.argv[3])
+    except:
+        print("ERR, the number of rows must be an integer")
+        return
+
+    if(cns.ROWS < 4):
+        print("The number of rows must be at leat four")
+        return
+
+    first_player = sys.argv[4]
+    if first_player == "computer":
+        first_player = 2
+    elif first_player == "human":
+        first_player = 1
+    else:
+        print("The first player can be either human or computer")
+        return
+
+    game(player2, first_player)
+
+
+get_args()
