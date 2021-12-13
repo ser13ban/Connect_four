@@ -7,34 +7,75 @@ import constants as cns
 
 
 def generate_board():
+    """
+    Generates the playing board filled with zeros using the numpy library 
+
+    Parameters
+    ----------
+    none
+
+    Returns
+    --------
+    DataFrame:
+        A dataframe Wiht n rows and m collums
+    """
     board = np.zeros((cns.ROWS, cns.COLUMNS))
     return board
 
 
 def print_board(board):
+    """
+    Prints the dataframe to the console
+
+    Parameters
+    ----------
+    none
+
+    Returns
+    --------
+    none
+    """
     print(board)
 
 
-def get_human_player_move():
-    col = int(input("Give me the column you want to move on(0-6): "))
-    return col
 
 
 def get_human_player_move_from_interface(event):
+    """
+    Returns the move a human player wants to make
+
+    Parameters
+    ----------
+    the MOUSECLICK event 
+
+    Returns
+    --------
+    Integer:
+        A integer that repersents the collumn number thtat the player has chosen
+    """
     posx = event.pos[0]
     col = int(math.floor(posx / cns.TILE_SIZE))
     return col
 
-
-def get_human_player2_move_from_interface(event):
-    posx = event.pos[0]
-    col = int(math.floor(posx / cns.TILE_SIZE))
-    return col
 
 
 def get_player2_column(board, player2, event):
+    """
+    Returns the move the second player (either human or ai)
+
+    Parameters
+    ----------
+    board - the playing board
+    player2 - the type of the player2 (AI hard, medium or easy)
+    event- the MOUSECLICK event
+
+    Returns
+    --------
+    Integer:
+        A integer that repersents the collumn that the ai or the human 2 had made
+    """
     if player2 is cns.PLAYER_TWO:
-        col = get_human_player2_move_from_interface(event)
+        col = get_human_player_move_from_interface(event)
         return col
     elif player2 is cns.AI_EASY:
         # this the ai in random mode (he chooses a piece at random)
@@ -84,20 +125,74 @@ def get_player2_column(board, player2, event):
 
 
 def is_valid_position(board, col):
+    """
+    Returns true if the move is valid false otherwise
+
+    Parameters
+    ----------
+    board - the data frae that keeps the game state
+    col - the columbn that was seletcet for a piece drop 
+
+    Returns
+    --------
+    Boolean:
+        A boolean that repersents if that position is avaliable or not
+    """
     return board[0][col] == 0
 
 
 def place_piece(board, row, col, piece):
+    """
+    Places a piece on the board
+
+    Parameters
+    ----------
+    board - the datgrame taht holds the game state
+    row - the row index
+    col - the collum index
+    piece - 1 for player 1 two for palyer 2
+
+    Returns
+    --------
+    none
+    """
     board[row][col] = piece
 
 
 def find_row_for_column(board, col):
+    """
+    Returns the row for a given collum
+
+    Parameters
+    ----------
+    board - the dataframe holing the game state
+    col - the collumn that was chosen 
+
+    Returns
+    --------
+    Integer:
+        A integer that repersents the first free row for a given collumn
+    """
     for row in range(cns.ROWS-1, -1, -1):
         if board[row][col] == 0:
             return row
 
 
 def check_game_over_for_n(board, piece, n):
+    """ 
+    Returns whete the state of the game reached the end
+
+    Parameters
+    ----------
+    board - the dataframe that holds the game state
+    piece - the piece for which we check the game over 1 or 2
+    n - the number of pieces that needed to be connected in order to have game over
+
+    Returns
+    --------
+    Boolean:
+        A boolean that represents wehter the game is over for that piece
+    """
     for c in range(cns.COLUMNS-(n-1)):
         for r in range(cns.ROWS):
             count = 0
@@ -136,6 +231,18 @@ def check_game_over_for_n(board, piece, n):
 
 
 def draw_interface(board, screen):
+    """
+    Displays the board and the pieces to the players
+
+    Parameters
+    ----------
+    board - the dataframe holding the current game state
+    screen - the place where the data will be displayed
+
+    Returns
+    --------
+    none
+    """
     for c in range(cns.COLUMNS):
         for r in range(cns.ROWS):
             pygame.draw.rect(screen, cns.BLUE, (c * cns.TILE_SIZE,
@@ -153,6 +260,18 @@ def draw_interface(board, screen):
 
 
 def game(player2, first_player):
+    """
+    Holds the game loop, logic and the display of the interface, connects and calls all of the functions
+
+    Parameters
+    ----------
+    player2 - the type of the opponent
+    first_player - which player makes the frist move 
+
+    Returns
+    --------
+    none
+    """
     board = generate_board()
     game_over = False
     turn = first_player
@@ -249,9 +368,19 @@ def game(player2, first_player):
                 draw_interface(board, screen)
 
 
-# game(cns.AI_HARD)
 
 def get_args():
+    """
+    Get and validate the arguments from the console and starts the game accordingly
+
+    Parameters
+    ----------
+    none
+
+    Returns
+    --------
+    none
+    """
     if len(sys.argv) != 5:
         print("ERR, wrong number of arguments, try to follow: ")
         print("python connect_four.py <tip adversar> <celule_axa_x> <celule_axa_y> <First Player>")
