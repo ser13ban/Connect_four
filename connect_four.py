@@ -201,6 +201,7 @@ def check_game_over_for_n(board, piece, n):
                     count += 1
             if count == n:
                 return True
+
     for c in range(cns.COLUMNS):
         for r in range(cns.ROWS-(n-1)):
             count = 0
@@ -210,7 +211,7 @@ def check_game_over_for_n(board, piece, n):
             if count == n:
                 return True
 
-    for c in range(cns.COLUMNS - n):
+    for c in range(cns.COLUMNS - n + 1):
         for r in range(cns.ROWS-n-1):
             count = 0
             for i in range(0, n):
@@ -219,7 +220,7 @@ def check_game_over_for_n(board, piece, n):
             if count == n:
                 return True
 
-    for c in range(cns.COLUMNS-n):
+    for c in range(cns.COLUMNS-n + 1):
         for r in range(n-1, cns.ROWS):
             count = 0
             for i in range(0, n):
@@ -227,7 +228,20 @@ def check_game_over_for_n(board, piece, n):
                     count += 1
             if count == n:
                 return True
+
+    for c in range(cns.COLUMNS-3):
+        for r in range(cns.ROWS-3):
+            if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
+                return True
+
+	# Check negatively sloped diaganols
+    for c in range(cns.COLUMNS-3):
+	    for r in range(3, cns.ROWS):
+		    if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
+			    return True
+
     return False
+
 
 
 def draw_interface(board, screen):
