@@ -8,7 +8,7 @@ import constants as cns
 
 def generate_board():
     """
-    Generates the playing board filled with zeros using the numpy library 
+    Generates the playing board filled with zeros using the numpy library
 
     Parameters
     ----------
@@ -38,15 +38,13 @@ def print_board(board):
     print(board)
 
 
-
-
 def get_human_player_move_from_interface(event):
     """
     Returns the move a human player wants to make
 
     Parameters
     ----------
-    the MOUSECLICK event 
+    the MOUSECLICK event
 
     Returns
     --------
@@ -56,7 +54,6 @@ def get_human_player_move_from_interface(event):
     posx = event.pos[0]
     col = int(math.floor(posx / cns.TILE_SIZE))
     return col
-
 
 
 def get_player2_column(board, player2, event):
@@ -79,7 +76,7 @@ def get_player2_column(board, player2, event):
         return col
     elif player2 is cns.AI_EASY:
         # this the ai in random mode (he chooses a piece at random)
-        col = random.randint(0, cns.COLUMNS-1)
+        col = random.randint(0, cns.COLUMNS - 1)
         return col
     elif player2 is cns.AI_MEDIUM:
         # this is the ai in medium mode ( he knows how to do defence, he attacks randmonly)
@@ -90,7 +87,7 @@ def get_player2_column(board, player2, event):
                 board_copy[row][c] = 1
                 if check_game_over_for_n(board_copy, 1, 4):
                     return c
-        col = random.randint(0, cns.COLUMNS-1)
+        col = random.randint(0, cns.COLUMNS - 1)
         return col
     elif player2 is cns.AI_HARD:
         # this is the ai in the hard mode
@@ -121,7 +118,7 @@ def get_player2_column(board, player2, event):
         if twos_in_row:
             return random.choice(twos_in_row)
 
-        return random.randint(0, cns.COLUMNS-1)
+        return random.randint(0, cns.COLUMNS - 1)
 
 
 def is_valid_position(board, col):
@@ -131,7 +128,7 @@ def is_valid_position(board, col):
     Parameters
     ----------
     board - the data frae that keeps the game state
-    col - the columbn that was seletcet for a piece drop 
+    col - the columbn that was seletcet for a piece drop
 
     Returns
     --------
@@ -166,20 +163,20 @@ def find_row_for_column(board, col):
     Parameters
     ----------
     board - the dataframe holing the game state
-    col - the collumn that was chosen 
+    col - the collumn that was chosen
 
     Returns
     --------
     Integer:
         A integer that repersents the first free row for a given collumn
     """
-    for row in range(cns.ROWS-1, -1, -1):
+    for row in range(cns.ROWS - 1, -1, -1):
         if board[row][col] == 0:
             return row
 
 
 def check_game_over_for_n(board, piece, n):
-    """ 
+    """
     Returns whete the state of the game reached the end
 
     Parameters
@@ -193,55 +190,69 @@ def check_game_over_for_n(board, piece, n):
     Boolean:
         A boolean that represents wehter the game is over for that piece
     """
-    for c in range(cns.COLUMNS-(n-1)):
+    for c in range(cns.COLUMNS - (n - 1)):
         for r in range(cns.ROWS):
             count = 0
             for i in range(0, n):
-                if board[r][c+i] == piece:
+                if board[r][c + i] == piece:
                     count += 1
             if count == n:
                 return True
 
     for c in range(cns.COLUMNS):
-        for r in range(cns.ROWS-(n-1)):
+        for r in range(cns.ROWS - (n - 1)):
             count = 0
             for i in range(0, n):
-                if board[r+i][c] == piece:
+                if board[r + i][c] == piece:
                     count += 1
             if count == n:
                 return True
 
     for c in range(cns.COLUMNS - n + 1):
-        for r in range(cns.ROWS-n-1):
+        for r in range(cns.ROWS - n - 1):
             count = 0
             for i in range(0, n):
-                if board[r+i][c+i] == piece:
+                if board[r + i][c + i] == piece:
                     count += 1
             if count == n:
                 return True
 
-    for c in range(cns.COLUMNS-n + 1):
-        for r in range(n-1, cns.ROWS):
+    for c in range(cns.COLUMNS - n + 1):
+        for r in range(n - 1, cns.ROWS):
             count = 0
             for i in range(0, n):
-                if board[r-i][c+i] == piece:
+                if board[r - i][c + i] == piece:
                     count += 1
             if count == n:
                 return True
 
-    for c in range(cns.COLUMNS-3):
-        for r in range(cns.ROWS-3):
-            if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
+    for c in range(cns.COLUMNS - 3):
+        for r in range(cns.ROWS - 3):
+            if (
+                board[r][c] == piece
+                and board[r + 1][c + 1] == piece
+                and board[r + 2][c + 2] == piece
+                and board[r + 3][c + 3] == piece
+            ):
                 return True
 
-	# Check negatively sloped diaganols
-    for c in range(cns.COLUMNS-3):
-	    for r in range(3, cns.ROWS):
-		    if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
-			    return True
-
+    for c in range(cns.COLUMNS - 3):
+        for r in range(3, cns.ROWS):
+            if (
+                board[r][c] == piece
+                and board[r - 1][c + 1] == piece
+                and board[r - 2][c + 2] == piece
+                and board[r - 3][c + 3] == piece
+            ):
+                return True
     return False
 
+
+def check_tie(board):
+    for i in range(cns.COLUMNS):
+        if board[0][i] == 0:
+            return False
+    return True
 
 
 def draw_interface(board, screen):
@@ -259,17 +270,46 @@ def draw_interface(board, screen):
     """
     for c in range(cns.COLUMNS):
         for r in range(cns.ROWS):
-            pygame.draw.rect(screen, cns.BLUE, (c * cns.TILE_SIZE,
-                             r * cns.TILE_SIZE + cns.TILE_SIZE, cns.TILE_SIZE, cns.TILE_SIZE))
+            pygame.draw.rect(
+                screen,
+                cns.BLUE,
+                (
+                    c * cns.TILE_SIZE,
+                    r * cns.TILE_SIZE + cns.TILE_SIZE,
+                    cns.TILE_SIZE,
+                    cns.TILE_SIZE,
+                ),
+            )
             if board[r][c] == 0:
-                pygame.draw.circle(screen, cns.BLACK, (int(c * cns.TILE_SIZE + cns.TILE_SIZE/2),
-                                                       int(r * cns.TILE_SIZE + cns.TILE_SIZE + cns.TILE_SIZE/2)), cns.RADIUS)
+                pygame.draw.circle(
+                    screen,
+                    cns.BLACK,
+                    (
+                        int(c * cns.TILE_SIZE + cns.TILE_SIZE / 2),
+                        int(r * cns.TILE_SIZE + cns.TILE_SIZE + cns.TILE_SIZE / 2),
+                    ),
+                    cns.RADIUS,
+                )
             if board[r][c] == 1:
-                pygame.draw.circle(screen, cns.RED, (int(c * cns.TILE_SIZE + cns.TILE_SIZE/2),
-                                                     int(r * cns.TILE_SIZE + cns.TILE_SIZE + cns.TILE_SIZE/2)), cns.RADIUS)
+                pygame.draw.circle(
+                    screen,
+                    cns.RED,
+                    (
+                        int(c * cns.TILE_SIZE + cns.TILE_SIZE / 2),
+                        int(r * cns.TILE_SIZE + cns.TILE_SIZE + cns.TILE_SIZE / 2),
+                    ),
+                    cns.RADIUS,
+                )
             if board[r][c] == 2:
-                pygame.draw.circle(screen, cns.GREEN, (int(c * cns.TILE_SIZE + cns.TILE_SIZE/2),
-                                                       int(r * cns.TILE_SIZE + cns.TILE_SIZE + cns.TILE_SIZE/2)), cns.RADIUS)
+                pygame.draw.circle(
+                    screen,
+                    cns.GREEN,
+                    (
+                        int(c * cns.TILE_SIZE + cns.TILE_SIZE / 2),
+                        int(r * cns.TILE_SIZE + cns.TILE_SIZE + cns.TILE_SIZE / 2),
+                    ),
+                    cns.RADIUS,
+                )
     pygame.display.update()
 
 
@@ -280,7 +320,7 @@ def game(player2, first_player):
     Parameters
     ----------
     player2 - the type of the opponent
-    first_player - which player makes the frist move 
+    first_player - which player makes the frist move
 
     Returns
     --------
@@ -292,7 +332,7 @@ def game(player2, first_player):
 
     pygame.init()
     screen_width = cns.COLUMNS * cns.TILE_SIZE
-    screen_height = (cns.ROWS+1) * cns.TILE_SIZE
+    screen_height = (cns.ROWS + 1) * cns.TILE_SIZE
     size = (screen_width, screen_height)
 
     screen = pygame.display.set_mode(size)
@@ -305,21 +345,21 @@ def game(player2, first_player):
                 sys.exit()
 
             if event.type == pygame.MOUSEMOTION:
-                pygame.draw.rect(screen, cns.BLACK,
-                                 (0, 0, screen_width, cns.TILE_SIZE))
+                pygame.draw.rect(screen, cns.BLACK, (0, 0, screen_width, cns.TILE_SIZE))
                 posx = event.pos[0]
 
                 if turn == 1:
                     pygame.draw.circle(
-                        screen, cns.RED, (posx, int(cns.TILE_SIZE/2)), cns.RADIUS)
+                        screen, cns.RED, (posx, int(cns.TILE_SIZE / 2)), cns.RADIUS
+                    )
                 elif turn == 2 and player2 == cns.PLAYER_TWO:
                     pygame.draw.circle(
-                        screen, cns.GREEN, (posx, int(cns.TILE_SIZE/2)), cns.RADIUS)
+                        screen, cns.GREEN, (posx, int(cns.TILE_SIZE / 2)), cns.RADIUS
+                    )
                 pygame.display.update()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pygame.draw.rect(screen, cns.BLACK,
-                                 (0, 0, screen_width, cns.TILE_SIZE))
+                pygame.draw.rect(screen, cns.BLACK, (0, 0, screen_width, cns.TILE_SIZE))
                 # player 1
                 if turn == 1:
                     placed_piece = False
@@ -336,8 +376,7 @@ def game(player2, first_player):
                     # check to see if this player won
                     if check_game_over_for_n(board, 1, 4):
                         print("Player 1 won")
-                        label = winner_font.render(
-                            "PLAYER ONE WON!", 1, cns.RED)
+                        label = winner_font.render("PLAYER ONE WON!", 1, cns.RED)
                         screen.blit(label, (40, 10))
                         draw_interface(board, screen)
                         draw_interface(board, screen)
@@ -345,10 +384,19 @@ def game(player2, first_player):
                         game_over = True
                         break
 
+                    # check for tie
+                    if check_tie(board):
+                        print("Tis is a tie")
+                        label = winner_font.render("THIS IS A TIE", 1, cns.WHITE)
+                        screen.blit(label, (40, 10))
+                        draw_interface(board, screen)
+                        pygame.time.wait(3000)
+                        game_over = True
+
                     if placed_piece:
                         turn = 2
                         draw_interface(board, screen)
-                        if(player2 == cns.PLAYER_TWO):
+                        if player2 == cns.PLAYER_TWO:
                             continue
 
                 # player 2
@@ -367,20 +415,27 @@ def game(player2, first_player):
                     # check to see if this player won
                     if check_game_over_for_n(board, 2, 4):
                         print("Player 2 won")
-                        label = winner_font.render(
-                            "PLAYER TWO WON!", 1, cns.GREEN)
+                        label = winner_font.render("PLAYER TWO WON!", 1, cns.GREEN)
                         screen.blit(label, (40, 10))
                         draw_interface(board, screen)
                         pygame.time.wait(3000)
                         game_over = True
                         break
 
+                    # check for tie
+                    if check_tie(board):
+                        print("Tis is a tie")
+                        label = winner_font.render("THIS IS A TIE", 1, cns.WHITE)
+                        screen.blit(label, (40, 10))
+                        draw_interface(board, screen)
+                        pygame.time.wait(3000)
+                        game_over = True
+
                     if placed_piece:
                         turn = 1
 
                 print_board(board)
                 draw_interface(board, screen)
-
 
 
 def get_args():
@@ -397,7 +452,9 @@ def get_args():
     """
     if len(sys.argv) != 5:
         print("ERR, wrong number of arguments, try to follow: ")
-        print("python connect_four.py <tip adversar> <celule_axa_x> <celule_axa_y> <First Player>")
+        print(
+            "python connect_four.py <tip adversar> <celule_axa_x> <celule_axa_y> <First Player>"
+        )
         return
 
     player2 = sys.argv[1]
@@ -420,7 +477,7 @@ def get_args():
         print("ERR, the number of collums must be an integer")
         return
 
-    if(cns.COLUMNS < 4):
+    if cns.COLUMNS < 4:
         print("The number of collums must be at leat four")
         return
 
@@ -430,7 +487,7 @@ def get_args():
         print("ERR, the number of rows must be an integer")
         return
 
-    if(cns.ROWS < 4):
+    if cns.ROWS < 4:
         print("The number of rows must be at leat four")
         return
 

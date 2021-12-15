@@ -9,5 +9,6 @@ TILE_SIZE = 100  # this is the size of a tile in pixels
 BLUE = (0, 0, 200)
 RED = (200, 0, 0)
 GREEN = (0, 200, 0)
+WHITE = (250, 250, 250)
 BLACK = (0, 0, 0)
-RADIUS = int(TILE_SIZE/2 - 5)
+RADIUS = int(TILE_SIZE / 2 - 5)
