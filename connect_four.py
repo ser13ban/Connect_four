@@ -249,6 +249,19 @@ def check_game_over_for_n(board, piece, n):
 
 
 def check_tie(board):
+    """
+    Checks if the game is in the state of a tie (the first row is full of pieces)
+
+    Parameters
+    ----------
+    board - the dataframe holding the current game state
+
+    Returns
+    Boolean:
+        A boolean that represents whether the game is a tie or not
+    --------
+    none
+    """
     for i in range(cns.COLUMNS):
         if board[0][i] == 0:
             return False
